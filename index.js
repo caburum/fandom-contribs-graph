@@ -1,4 +1,5 @@
 const { mwn } = require('mwn');
+const fetch = require('isomorphic-fetch');
 
 const express = require('express');
 const app = express();
@@ -7,7 +8,7 @@ const expressRateLimit = require('express-rate-limit');
 const apicache = require('apicache');
 var cache = apicache.middleware;
 
-async function fetchContribs(user, wiki, lang = '') {
+async function fetchEdits(user, wiki, lang = '') {
 	return new Promise((resolve, reject) => {
 		bot = new mwn({
 			apiUrl: `https://${wiki}.fandom.com/${lang ? lang + '/' : ''}api.php`,
@@ -25,7 +26,7 @@ async function fetchContribs(user, wiki, lang = '') {
 		});
 
 		bot.login().catch((e) => {
-			reject(e);
+			return reject(e);
 		})
 		.then(async () => {
 			var editDates = {};
@@ -47,6 +48,38 @@ async function fetchContribs(user, wiki, lang = '') {
 	});
 }
 
+async function fetchPosts(user, wiki, lang = '') {
+	return new Promise(async (resolve, reject) => {
+		var postDates = {}, userId, url;
+		await fetch(`https://community.fandom.com/api.php?action=query&format=json&list=users&ususers=${user}`)
+			.then(async (response) => {
+				json = await response.json();
+				if (json.query.users[0].missing === '') throw new Error('Invalid user');
+				userId = json.query.users[0].userid;
+			});
+
+		for (let i = 0; i < 1000; i++) {
+			if (i === 0) {
+				url = `https://${wiki}.fandom.com/${lang ? lang + '/' : ''}wikia.php?controller=DiscussionContribution&method=getPosts&limit=100&page=0&userId=${userId}`;
+			} else if (!url) {
+				break; // No more pages
+			}
+			await fetch(url)
+				.then(async (response) => {
+					json = await response.json();
+					url = (json._links.next || [ { href: false } ])[0].href;
+					json._embedded['doc:posts'].forEach((post) => {
+						let date = new Date(0);
+						date.setUTCSeconds(post.creationDate.epochSecond);
+						let key = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`;	
+						postDates[key] = isNaN(postDates[key]) ? 1 : postDates[key] + 1;
+					})
+				});
+		}
+		resolve(postDates);
+	});
+}
+
 const port = process.env.PORT || 80;
 const rateLimit = expressRateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -61,7 +94,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', rateLimit);
 app.set('trust proxy', 1); // https://expressjs.com/en/guide/behind-proxies.html
 
-app.get('/api', cache('10 seconds'), async function(req, res) {
+app.get('/api', cache('10 minutes'), async function(req, res) {
 	let user = req.query.user;
 	let fullWiki = req.query.wiki;
 
@@ -75,9 +108,16 @@ app.get('/api', cache('10 seconds'), async function(req, res) {
 			} else {
 				wiki = fullWiki;
 			}
-			fetchContribs(user, wiki, lang).then((data) => {
-				res.send({'result': data});
-			});
+			await Promise.allSettled([fetchEdits(user, wiki, lang), fetchPosts(user, wiki, lang)])
+				.catch((e) => {
+					Promise.reject(e);
+				})
+				.then(([edits, posts]) => {
+					res.send({
+						'edits': edits.value,
+						'posts': posts.value
+					});
+				});
 		} else {
 			res.status(400);
 			res.json({
@@ -92,7 +132,7 @@ app.get('/api', cache('10 seconds'), async function(req, res) {
 			'message': 'Missing required parameters'
 		});
 	}
-})
+});
 
 app.listen(3000, function () {
   console.log('Server running on port ' + port + '!');

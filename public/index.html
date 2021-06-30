@@ -11,7 +11,7 @@
 <body>
 	<h1>Fandom Contribs Graph</h1>
 	<form action="/" method="get">
-		<input type="text" name="user" required placeholder="Username">
+		<input type="text" name="user" required placeholder="Username" title="Valid username" pattern=".{1,50}">
 		<input type="text" name="wiki" required placeholder="Wiki" title="Valid wiki subdomain name (or language.subdomain for non-English wikis)" pattern="^([a-z]{2}\.|[a-z]{2}-[a-z]{2}\.)?[a-z0-9\-]{3,}$">
 		<button type="submit">Generate</button>
 	</form>
