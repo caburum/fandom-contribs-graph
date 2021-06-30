@@ -31,8 +31,6 @@ if (user && wiki) {
 		var toDate = new Date(Date.now());
 		var fromDate = editsFromDate < postsFromDate ? editsFromDate : postsFromDate;
 
-		console.log(toDate, fromDate);
-
 		for (var date = fromDate; date <= toDate; date.setDate(date.getDate() + 1)) {
 			let key = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`
 			let dateEdits = edits[key] || 0;
@@ -61,7 +59,8 @@ if (user && wiki) {
 				}
 			},
 			backgroundColor: 'transparent',
-			lineWidth: 1
+			lineWidth: 1,
+			focusTarget: 'category' // Show tooltip on entire category/row
 		}
 
 		var chart = new google.visualization.LineChart(document.getElementById('chart'));
