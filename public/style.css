@@ -1,0 +1,98 @@
+:root {
+	--color: #DDD;
+	--dark: #111;
+	--medium: #333;
+	--light: #3E3E3E;
+}
+
+body {
+	background-color: var(--dark);
+	color: var(--color);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+	height: 100vh;
+	margin: 0;
+}
+
+/* Input */
+form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	max-width: 300px;
+	width: 100%;
+	gap: 0.25em;
+}
+
+input[type=text], button {
+	width: 100%;
+	border-radius: 0.5rem;
+	border-color: var(--medium);
+	border-width: 1px;
+	border-style: solid;
+	font-size: 1em;
+	padding: 0.5em;
+	color: var(--color);
+	outline: none;
+	box-sizing: border-box;
+}
+
+input[type=text] {
+	background-color: transparent;
+}
+
+input[type=text]:focus {
+	border-color: var(--light);
+}
+
+button {
+	background-color: var(--medium);
+	cursor: pointer;
+}
+
+/* Spinner */
+#spinner {
+	width: 40px;
+	animation: rotate 2s linear infinite;
+}
+
+#spinner #spinnerPath {
+	stroke: var(--medium);
+	stroke-linecap: round;
+	animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes dash {
+	0% {
+		stroke-dasharray: 1, 150;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -35;
+	}
+	100% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -124;
+	}
+}
+
+/* Chart */
+#chart {
+	width: 90%;
+	height: 50vh;
+}
+
+#chart > div > div {
+	margin: auto;
+}
