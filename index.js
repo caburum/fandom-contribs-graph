@@ -4,6 +4,8 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const expressRateLimit = require('express-rate-limit');
+const apicache = require('apicache');
+var cache = apicache.middleware;
 
 async function fetchContribs(user, wiki, lang = '') {
 	return new Promise((resolve, reject) => {
@@ -59,9 +61,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', rateLimit);
 app.set('trust proxy', 1); // https://expressjs.com/en/guide/behind-proxies.html
 
-app.get('/api', async function(req, res) {
+app.get('/api', cache('10 seconds'), async function(req, res) {
 	let user = req.query.user;
 	let fullWiki = req.query.wiki;
+
+	req.apicacheGroup = user + fullWiki;
+
 	if (user && fullWiki) {
 		if (/^([a-z]{2}\.|[a-z]{2}-[a-z]{2}\.)?[a-z0-9\-]{3,}$/mi.test(wiki)) {
 			var lang, wiki;

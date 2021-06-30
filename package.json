@@ -13,6 +13,7 @@
   "author": "Calum Dingwall (https://github.com/caburum)",
   "license": "MIT",
   "dependencies": {
+    "apicache": "^1.6.2",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
     "mwn": "^0.11.0"
