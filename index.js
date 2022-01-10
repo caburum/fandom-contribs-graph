@@ -67,7 +67,8 @@ async function fetchPosts(user, wiki, lang = '') {
 			await fetch(url)
 				.then(async (response) => {
 					json = await response.json();
-					url = (json._links.next || [ { href: false } ])[0].href;
+					if (!json._embedded) return url = false;
+					url = ((json._links && json._links.next) || [ { href: false } ])[0].href;
 					json._embedded['doc:posts'].forEach((post) => {
 						let date = new Date(0);
 						date.setUTCSeconds(post.creationDate.epochSecond);
