@@ -40,14 +40,21 @@ if (user && wiki) {
 
 		var options = {
 			hAxis: {
-				gridlines: { color: '#333333' },
+				gridlines: {
+					color: '#333333',
+					count: -1
+				},
 				format: 'M/d/yy',
 				textStyle: {
 					color: '#DDDDDD'
 				}
 			},
 			vAxis: {
-				gridlines: { color: 'none' },
+				format: '#',
+				gridlines: {
+					color: 'none',
+					count: -1
+				},
 				minValue: 0,
 				textStyle: {
 					color: '#DDDDDD'
