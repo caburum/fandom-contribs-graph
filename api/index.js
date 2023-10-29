@@ -10,7 +10,7 @@ var cache = apicache.middleware;
 
 async function fetchEdits(user, wiki, lang = '') {
 	return new Promise((resolve, reject) => {
-		bot = new mwn({
+		const bot = new mwn({
 			apiUrl: `https://${wiki}.fandom.com/${lang ? lang + '/' : ''}api.php`,
 
 			// Log in for lower ratelimit and higher query size
@@ -91,7 +91,9 @@ const rateLimit = expressRateLimit({
 	}
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// let vercel host its own way
+if (!process.env.VERCEL) app.use(express.static(path.join(__dirname, '../public')));
+
 app.use('/api', rateLimit);
 app.set('trust proxy', 1); // https://expressjs.com/en/guide/behind-proxies.html
 
@@ -138,3 +140,5 @@ app.get('/api', cache('10 minutes'), async function(req, res) {
 app.listen(3000, function () {
   console.log('Server running on port ' + port + '!');
 });
+
+module.exports = app;

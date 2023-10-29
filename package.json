@@ -2,9 +2,9 @@
   "name": "fandom-contribs-graph",
   "version": "1.0.0",
   "description": "Generates a graph of contributions per day on a wiki",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ."
   },
   "keywords": [
     "mediawiki",
